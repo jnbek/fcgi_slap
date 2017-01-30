@@ -5,6 +5,14 @@
 #include <string.h>
 #include <unistd.h>
 
+/* 
+Stolen with minor changes from: 
+https://github.com/troydhanson/network/blob/master/unixdomain/cli.c
+TODO: Add in getopt arg parsing. See:
+https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt
+flags -s = path to socket -v be verbose -h print usage
+*/
+
 char *socket_path = "/var/tmp/fcgiwrap.sock";
 
 int main(int argc, char *argv[]) {
