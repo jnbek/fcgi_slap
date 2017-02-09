@@ -6,11 +6,8 @@
 #include <unistd.h>
 
 /* 
-Stolen with minor changes from: 
+Stolen with changes from: 
 https://github.com/troydhanson/network/blob/master/unixdomain/cli.c
-TODO: Add in getopt arg parsing. See:
-https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt
-flags -s = path to socket -v be verbose -h print usage
 */
 
 char *socket_path = "/var/tmp/fcgiwrap.sock";
@@ -18,10 +15,24 @@ char *socket_path = "/var/tmp/fcgiwrap.sock";
 int main(int argc, char *argv[]) {
     struct sockaddr_un addr;
     char buf[100];
-    int fd,rc;
+    int c,fd,rc,verbose;
 
+    while ((c = getopt (argc, argv, "vhf:")) != -1)
+        switch (c)
+        {
+            case 'v':
+                verbose = 1;
+                break;
+            case 'f':
+                socket_path = optarg;
+                break;
+            case 'h':
+                printf("Usage: fcgi_slap [-v] [-f /path/to/socket]\n");
+                exit(0);
+        }
     if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
         perror("socket error");
+        fprintf(stderr, "Could not open socket: %s\n", socket_path);
         exit(-1);
     }
 
@@ -37,10 +48,11 @@ int main(int argc, char *argv[]) {
 
     if (connect(fd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
         perror("connect error");
+        fprintf(stderr, "Could not create socket connection to: %s\n", socket_path);
         exit(-1);
     }
     else {
-        if (argc > 1) printf("Connected to %s successfully\n", socket_path);
+        if (verbose) printf("Connected to %s successfully\n", socket_path);
     }
 
     return 0;
